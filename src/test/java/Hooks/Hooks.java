@@ -11,6 +11,7 @@ import Driver._drivers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import org.openqa.selenium.chrome.ChromeOptions; // Add this at the top
 
 public class Hooks {
 
@@ -25,6 +26,8 @@ public class Hooks {
 
         // Browser setup
         WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--user-data-dir=/tmp/profile_" + System.currentTimeMillis()); // Unique profile for each run
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         _drivers.setDriver(driver);
