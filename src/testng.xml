@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Cucumber Suite" parallel="false">
+    <!-- First run: executes all scenarios -->
+    <test name="Main Runner">
+        <classes>
+            <class name="runners.TestRunner"/>
+        </classes>
+    </test>
+
+    <!-- Retries: executes only failed scenarios -->
+    <test name="Failed Runner Retry 1">
+        <classes>
+            <class name="runners.FailedRunnerTest"/>
+        </classes>
+    </test>
+
+    <test name="Failed Runner Retry 2">
+        <classes>
+            <class name="runners.FailedRunnerTest"/>
+        </classes>
+    </test>
+
+    <test name="Failed Runner Retry 3">
+        <classes>
+            <class name="runners.FailedRunnerTest"/>
+        </classes>
+    </test>
+
+</suite>

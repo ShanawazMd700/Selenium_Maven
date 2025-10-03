@@ -1,0 +1,6 @@
+{
+  "retrySettings": {
+    "maxRetries": 3,
+    "applyGlobally": true
+  }
+}
