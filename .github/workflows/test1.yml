@@ -3,9 +3,9 @@ name: Java Selenium CI
 # Trigger workflow on push to main branch or PR
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build-and-test:
