@@ -11,7 +11,7 @@ import Driver._drivers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-//import org.openqa.selenium.chrome.ChromeOptions; // Add this at the top
+import org.openqa.selenium.chrome.ChromeOptions; // Add this at the top
 
 public class Hooks {
 
@@ -19,6 +19,7 @@ public class Hooks {
 
     @Before
     public void setUp(Scenario scenario) {
+        System.out.println("Launching browser in CI-safe mode...");
         System.out.println("Launching browser...");
 
         // Start Extent Test for this scenario
@@ -26,8 +27,16 @@ public class Hooks {
 
         // Browser setup
         WebDriverManager.chromedriver().setup();
-        //ChromeOptions options = new ChromeOptions();
-        //options.addArguments("--user-data-dir=/tmp/profile_" + System.currentTimeMillis()); // Unique profile for each run
+
+        // ✅ Chrome Options for CI (GitHub Actions)
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless=new"); // Use headless mode (new headless mode for Chrome 109+)
+        options.addArguments("--no-sandbox"); // Required in CI
+        options.addArguments("--disable-dev-shm-usage"); // Avoid shared memory issues
+        options.addArguments("--disable-gpu"); // Disable GPU (not needed in CI)
+        options.addArguments("--window-size=1920,1080"); // Optional - set default size
+        options.addArguments("--user-data-dir=/tmp/chrome-" + System.currentTimeMillis()); // Unique profile per run
+
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         _drivers.setDriver(driver);

@@ -8,23 +8,23 @@
         </classes>
     </test>
 
-    <!-- Retries: executes only failed scenarios -->
-    <test name="Failed Runner Retry 1">
-        <classes>
-            <class name="runners.FailedRunnerTest"/>
-        </classes>
-    </test>
+<!--    &lt;!&ndash; Retries: executes only failed scenarios &ndash;&gt;-->
+<!--    <test name="Failed Runner Retry 1">-->
+<!--        <classes>-->
+<!--            <class name="runners.FailedRunnerTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 
-    <test name="Failed Runner Retry 2">
-        <classes>
-            <class name="runners.FailedRunnerTest"/>
-        </classes>
-    </test>
+<!--    <test name="Failed Runner Retry 2">-->
+<!--        <classes>-->
+<!--            <class name="runners.FailedRunnerTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 
-    <test name="Failed Runner Retry 3">
-        <classes>
-            <class name="runners.FailedRunnerTest"/>
-        </classes>
-    </test>
+<!--    <test name="Failed Runner Retry 3">-->
+<!--        <classes>-->
+<!--            <class name="runners.FailedRunnerTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 
 </suite>
