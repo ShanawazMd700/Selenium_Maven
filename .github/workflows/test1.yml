@@ -1,4 +1,4 @@
-name: JAVA Selenium CI Pipeline
+name: JAVA Selenium CI Pipeline 
 
 on:
   push:
@@ -12,13 +12,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
-
-    services:
-      selenium:
-        image: selenium/standalone-chrome:latest
-        ports:
-          - 4444:4444
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
@@ -34,7 +28,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.m2/repository
+            %USERPROFILE%\.m2\repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
