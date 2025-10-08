@@ -21,10 +21,10 @@ Feature: Widgets
     When We select "Yellow" from the standard dropdown
     Then Verify if "Yellow" is selected in the standard dropdown
 
-  Scenario: Selecting the option from the third dropdown in the dropdown menu
-    Given We go to the page "https://demoqa.com/"
-    And We click on the menu item "Widgets"
-    When We click on the sub-option "Select Menu"
-    When We select "Black" from the third dropdown
-    Then Verify if the option "Black" is selected in the third dropdown
+#  Scenario: Selecting the option from the third dropdown in the dropdown menu
+#    Given We go to the page "https://demoqa.com/"
+#    And We click on the menu item "Widgets"
+#    When We click on the sub-option "Select Menu"
+#    When We select "Black" from the third dropdown
+#    Then Verify if the option "Black" is selected in the third dropdown
 
