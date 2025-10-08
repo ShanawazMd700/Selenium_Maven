@@ -23,6 +23,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '11'
+      - name: Prepare rerun.txt
+        shell: pwsh
+        run: |
+              New-Item -ItemType Directory -Path target -Force
+              New-Item -ItemType File -Path target\rerun.txt -Force
+    
 
       - name: Cache Maven packages
         uses: actions/cache@v4
