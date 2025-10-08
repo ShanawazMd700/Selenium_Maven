@@ -20,16 +20,28 @@ public class controlhelpers
     }
 
     public void SafeClick(By locator) {
+        ((JavascriptExecutor) driver).executeScript(
+                "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
+        );
+
         waitHelpers.waitForElement(locator).click();
     }
 
     public void doubleClick(By locator) {
+        ((JavascriptExecutor) driver).executeScript(
+                "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
+        );
+
         WebElement element = waitHelpers.waitForElement(locator);
         Actions actions = new Actions(driver);
         actions.doubleClick(element).perform();
     }
 
     public void rightClick(By locator) {
+        ((JavascriptExecutor) driver).executeScript(
+                "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
+        );
+
         WebElement element = waitHelpers.waitForElement(locator);
         Actions actions = new Actions(driver);
         actions.contextClick(element).perform();
