@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
         plugin = {
                 "pretty",
                 "html:target/cucumber-report.html",
-                "rerun:target/rerun.txt",
+//                "rerun:target/rerun.txt",
                 "listeners.ExtentCucumberAdapter"// generates list of failed scenarios
         },
         monochrome = true
