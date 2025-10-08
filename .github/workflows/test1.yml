@@ -37,9 +37,6 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B clean compile
-        
-      - name: Ensure rerun file exists
-        run: mkdir -p target && echo "" > target/rerun.txt
 
       - name: Run tests
         run: mvn test
