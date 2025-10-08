@@ -36,6 +36,10 @@ public class Hooks {
         options.addArguments("--disable-gpu"); // Disable GPU (not needed in CI)
         options.addArguments("--window-size=1920,1080"); // Optional - set default size
         options.addArguments("--user-data-dir=/tmp/chrome-" + System.currentTimeMillis()); // Unique profile per run
+        options.addArguments("--disable-popup-blocking");
+        options.addArguments("--disable-extensions"); // disable ad extensions
+        options.addArguments("--disable-infobars");
+        options.addArguments("--disable-notifications");
 
         driver = new ChromeDriver();
         driver.manage().window().maximize();
