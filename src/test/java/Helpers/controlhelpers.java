@@ -20,11 +20,14 @@ public class controlhelpers
     }
 
     public void SafeClick(By locator) {
-        ((JavascriptExecutor) driver).executeScript(
-                "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
-        );
+        removeAds();
+        WebElement element = waitHelpers.waitForElement(locator);
 
-        waitHelpers.waitForElement(locator).click();
+        try {  //
+            element.click();
+        } catch (ElementNotInteractableException e) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        }
     }
 
     public void doubleClick(By locator) {
@@ -168,6 +171,14 @@ public class controlhelpers
 
         subMenu.click();
     }
+    private void removeAds() {
+        try {
+            ((JavascriptExecutor) driver).executeScript(
+                    "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
+            );
+        } catch (Exception ignored) { }
+    }
+
 
 
 
