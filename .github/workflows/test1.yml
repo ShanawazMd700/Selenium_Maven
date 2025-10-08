@@ -1,41 +1,72 @@
-name: Java Selenium CI
+name: JAVA Selenium CI Pipeline
 
-# Trigger workflow on push to main branch or PR
 on:
   push:
-    branches: [ master ]
+    branches:
+      - main
+      - master
   pull_request:
-    branches: [ master ]
+    branches:
+      - main
+      - master
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    steps:
-      # Step 1: Checkout code
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    services:
+      # If your tests require e.g. Selenium WebDriver or a browser service, you can define services
+      # e.g. selenium/standalone-chrome container or similar
+      selenium:
+        image: selenium/standalone-chrome:latest
+        ports:
+          - 4444:4444
 
-      # Step 2: Set up JDK
-      - name: Set up Java
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '24'
+          distribution: temurin  # or adopt, zulu etc.
+          java-version: '21'     # match your project’s Java version
 
-      # Step 3: Cache Maven dependencies
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
-          path: ~/.m2/repository
+          path: |
+            ~/.m2/repository
+            # optionally: target
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Step 4: Build project
       - name: Build with Maven
-        run: mvn clean install -DskipTests=false
+        run: mvn -B clean compile
 
-      # Step 5: Run tests
-      - name: Run Selenium Tests
+      - name: Run tests
+        # If your tests are integration / UI tests using Selenium, ensure that the selenium service is available or appropriate driver is set up
         run: mvn test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            **/target/surefire-reports
+            **/target/failsafe-reports
+
+      - name: Archive build logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs
+          path: |
+            **/*.log
+
+      - name: Post a comment (optional)
+        if: ${{ failure() }}
+        run: echo "Build or tests failed. Check reports." 
+
