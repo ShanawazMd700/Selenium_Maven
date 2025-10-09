@@ -41,6 +41,15 @@ jobs:
 
       - name: Run tests
         run: mvn test
+        
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+            name: selenium-reports
+            path: |
+              target/**/*.html
+              target/**/*.png
 
       - name: Upload test results
         if: always()
