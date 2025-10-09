@@ -32,7 +32,7 @@ public class Hooks {
 
         // ✅ Chrome Options for CI (GitHub Actions)
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new"); // Use headless mode (new headless mode for Chrome 109+)
+        //options.addArguments("--headless=new"); // Use headless mode (new headless mode for Chrome 109+)
         options.addArguments("--no-sandbox"); // Required in CI
         options.addArguments("--disable-dev-shm-usage"); // Avoid shared memory issues
         options.addArguments("--disable-gpu"); // Disable GPU (not needed in CI)
