@@ -23,12 +23,20 @@ public class controlhelpers
         removeAds();
         WebElement element = waitHelpers.waitForElement(locator);
 
-        try {  //
+        try {
             element.click();
+        } catch (ElementClickInterceptedException e) {
+            ((JavascriptExecutor) driver).executeScript(
+                    "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
         } catch (ElementNotInteractableException e) {
+            ((JavascriptExecutor) driver).executeScript(
+                    "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
         }
     }
+
+
 
     public void doubleClick(By locator) {
         ((JavascriptExecutor) driver).executeScript(
@@ -41,14 +49,23 @@ public class controlhelpers
     }
 
     public void rightClick(By locator) {
-        ((JavascriptExecutor) driver).executeScript(
-                "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
-        );
-
+        removeAds();
         WebElement element = waitHelpers.waitForElement(locator);
-        Actions actions = new Actions(driver);
-        actions.contextClick(element).perform();
+
+        try {
+            Actions actions = new Actions(driver);
+            actions.contextClick(element).perform();
+        } catch (ElementClickInterceptedException e) {
+            ((JavascriptExecutor) driver).executeScript(
+                    "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        } catch (ElementNotInteractableException e) {
+            ((JavascriptExecutor) driver).executeScript(
+                    "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        }
     }
+
 
     public void enterText(By locator, String text) {
         WebElement element = waitHelpers.waitForElement(locator);

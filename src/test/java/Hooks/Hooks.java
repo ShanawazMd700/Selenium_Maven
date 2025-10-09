@@ -11,6 +11,8 @@ import Driver._drivers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+
 import org.openqa.selenium.chrome.ChromeOptions; // Add this at the top
 
 public class Hooks {
@@ -40,6 +42,15 @@ public class Hooks {
         options.addArguments("--disable-extensions"); // disable ad extensions
         options.addArguments("--disable-infobars");
         options.addArguments("--disable-notifications");
+
+
+        // Chrome download preferences
+        HashMap<String, Object> prefs = new HashMap<>();
+        prefs.put("download.default_directory", System.getProperty("user.dir") + File.separator + "downloads");
+        prefs.put("download.prompt_for_download", false);
+        prefs.put("download.directory_upgrade", true);
+        prefs.put("safebrowsing.enabled", true);
+        options.setExperimentalOption("prefs", prefs);
 
         driver = new ChromeDriver();
         driver.manage().window().maximize();

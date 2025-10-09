@@ -18,11 +18,19 @@ public class uploadDownload
         this.waithelper = new waithelpers(driver);
     }
 
-    public void uploadFile(String relativePath) {
-        String absolutePath = new File("src/test/resources/files/" + relativePath).getAbsolutePath();
-        WebElement file = waithelper.waitForElement(locators.uploadButton);
-        file.sendKeys(absolutePath);
+    public void uploadFile(String filePath) {
+        File file;
+        if (new File(filePath).isAbsolute()) {
+            file = new File(filePath);
+        } else {
+            file = new File("src/test/resources/files/" + filePath);
+        }
+
+        Assert.assertTrue(file.exists(), "❌ Upload file not found: " + file.getAbsolutePath());
+        WebElement uploadInput = waithelper.waitForElement(locators.uploadButton);
+        uploadInput.sendKeys(file.getAbsolutePath());
     }
+
 
     public void clickdownloadfile()
     {
@@ -31,7 +39,8 @@ public class uploadDownload
     public void VerifyFileDownloaded()
     {
         String fileName = "sampleFile.jpeg";
-        String downloadPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + fileName;
+        String downloadPath = System.getProperty("user.dir") + File.separator + "downloads" + File.separator + fileName;
+
 
         File downloadedFile = new File(downloadPath);
 
