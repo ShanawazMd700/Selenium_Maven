@@ -29,21 +29,23 @@ public class uploadDownload
     }
     public void VerifyFileDownloaded()
     {
-        String downloadDir = "C:\\Users\\iray\\Downloads\\";
         String fileName = "sampleFile.jpeg";
-        File filePath = new File(downloadDir, fileName);
+        String downloadPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + fileName;
+
+        File downloadedFile = new File(downloadPath);
 
         int retries = 30; // wait up to 30 seconds
-        while (retries > 0 && !filePath.exists()) {
+        while (retries > 0 && !downloadedFile.exists()) {
             try {
                 Thread.sleep(1000); // wait 1 second
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Interrupted while waiting for file download", e);
             }
             retries--;
         }
 
-        Assert.assertTrue(filePath.exists(), "File '" + fileName + "' was not downloaded.");
+        Assert.assertTrue(downloadedFile.exists(), "File '" + fileName + "' was not downloaded.");
     }
 
 
