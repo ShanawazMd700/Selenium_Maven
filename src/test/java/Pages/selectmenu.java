@@ -40,6 +40,9 @@ public class selectmenu
     }
 
     public void selectSecondOption(String optionText) {
+        ((JavascriptExecutor) driver).executeScript(
+                "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
+        );
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
         // Click the dropdown to expand options

@@ -72,7 +72,7 @@ Feature: Element Interaction
     When We click on the sub-option "Upload and Download"
     When We click on the button with the text Download
     Then The file should be downloaded successfully
-    When We upload a file with the path "C:\Users\iray\Downloads\sampleFile.jpeg"
+    When We upload a file with the path "sampleFile.jpeg"
     Then Verify the text "C:\fakepath\sampleFile.jpeg" should be displayed successfully
 
   Scenario: Handling the Dynamic Interaction

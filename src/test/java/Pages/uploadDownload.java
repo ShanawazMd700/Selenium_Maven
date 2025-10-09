@@ -18,11 +18,12 @@ public class uploadDownload
         this.waithelper = new waithelpers(driver);
     }
 
-    public void uploadFile(String path)
-    {
+    public void uploadFile(String relativePath) {
+        String absolutePath = new File("src/test/resources/files/" + relativePath).getAbsolutePath();
         WebElement file = waithelper.waitForElement(locators.uploadButton);
-        file.sendKeys(path);
+        file.sendKeys(absolutePath);
     }
+
     public void clickdownloadfile()
     {
         controlhelper.SafeClick(locators.downloadButton);
