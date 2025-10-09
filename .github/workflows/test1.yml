@@ -23,7 +23,8 @@ jobs:
         shell: pwsh
         run: |
               New-Item -ItemType Directory -Path target -Force
-              New-Item -ItemType File -Path target\rerun.txt -Force
+              New-Item -ItemType File -Path target/rerun.txt -Force
+        working-directory: ${{ github.workspace }}
     
 
       - name: Cache Maven packages
