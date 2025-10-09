@@ -22,47 +22,59 @@ public class controlhelpers
     public void SafeClick(By locator) {
         removeAds();
         WebElement element = waitHelpers.waitForElement(locator);
-
-        try {
-            element.click();
-        } catch (ElementClickInterceptedException e) {
-            ((JavascriptExecutor) driver).executeScript(
-                    "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
-        } catch (ElementNotInteractableException e) {
-            ((JavascriptExecutor) driver).executeScript(
-                    "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        int attempts = 3;
+        while (attempts > 0) {
+            try {
+                element.click();
+            } catch (ElementClickInterceptedException e) {
+                ((JavascriptExecutor) driver).executeScript(
+                        "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+            } catch (ElementNotInteractableException e) {
+                ((JavascriptExecutor) driver).executeScript(
+                        "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+                waitFor(1);
+            }
+            attempts--;
         }
     }
 
 
 
     public void doubleClick(By locator) {
-        ((JavascriptExecutor) driver).executeScript(
-                "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
-        );
+        removeAds();
+        int attempts = 3;
+        while ( attempts > 0) {
+            ((JavascriptExecutor) driver).executeScript(
+                    "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
+            );
 
-        WebElement element = waitHelpers.waitForElement(locator);
-        Actions actions = new Actions(driver);
-        actions.doubleClick(element).perform();
+            WebElement element = waitHelpers.waitForElement(locator);
+            Actions actions = new Actions(driver);
+            actions.doubleClick(element).perform();
+            attempts--;
+        }
     }
 
     public void rightClick(By locator) {
         removeAds();
         WebElement element = waitHelpers.waitForElement(locator);
-
-        try {
-            Actions actions = new Actions(driver);
-            actions.contextClick(element).perform();
-        } catch (ElementClickInterceptedException e) {
-            ((JavascriptExecutor) driver).executeScript(
-                    "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
-        } catch (ElementNotInteractableException e) {
-            ((JavascriptExecutor) driver).executeScript(
-                    "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        int attempts = 3;
+        while ( attempts > 0) {
+            try {
+                Actions actions = new Actions(driver);
+                actions.contextClick(element).perform();
+            } catch (ElementClickInterceptedException e) {
+                ((JavascriptExecutor) driver).executeScript(
+                        "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+            } catch (ElementNotInteractableException e) {
+                ((JavascriptExecutor) driver).executeScript(
+                        "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+            }
+            attempts--;
         }
     }
 

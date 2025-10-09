@@ -52,7 +52,7 @@ public class Hooks {
         prefs.put("safebrowsing.enabled", true);
         options.setExperimentalOption("prefs", prefs);
 
-        driver = new ChromeDriver();
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         _drivers.setDriver(driver);
 
