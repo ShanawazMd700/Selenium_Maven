@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class RetryConfig {
-    private static int maxRetries = 0;
+    private static int maxRetries = 2;
     private static boolean applyGlobally = false;
 
     static {
