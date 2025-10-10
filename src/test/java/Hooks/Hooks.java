@@ -1,4 +1,5 @@
 package Hooks;
+
 import io.cucumber.java.*;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -6,14 +7,14 @@ import utils.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import com.aventstack.extentreports.Status;
 import Driver._drivers;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
-
-import org.openqa.selenium.chrome.ChromeOptions; // Add this at the top
 
 public class Hooks {
 
@@ -21,32 +22,31 @@ public class Hooks {
 
     @Before
     public void setUp(Scenario scenario) {
-        System.out.println("Launching browser in CI-safe mode...");
-        System.out.println("Launching browser...");
+        System.out.println("🚀 Launching browser for scenario: " + scenario.getName());
 
-        // Start Extent Test for this scenario
         ExtentTestManager.startTest(scenario.getName(), "Scenario Execution");
 
-        // Browser setup
         WebDriverManager.chromedriver().setup();
 
-        // ✅ Chrome Options for CI (GitHub Actions)
+        // ✅ Ensure downloads folder exists before Chrome starts
+        File downloads = new File(System.getProperty("user.dir") + File.separator + "downloads");
+        if (!downloads.exists()) downloads.mkdirs();
+
         ChromeOptions options = new ChromeOptions();
-        //options.addArguments("--headless=new"); // Use headless mode (new headless mode for Chrome 109+)
-        options.addArguments("--no-sandbox"); // Required in CI
-        options.addArguments("--disable-dev-shm-usage"); // Avoid shared memory issues
-        options.addArguments("--disable-gpu"); // Disable GPU (not needed in CI)
-        options.addArguments("--window-size=1920,1080"); // Optional - set default size
-        options.addArguments("--user-data-dir=/tmp/chrome-" + System.currentTimeMillis()); // Unique profile per run
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1920,1080");
         options.addArguments("--disable-popup-blocking");
-        options.addArguments("--disable-extensions"); // disable ad extensions
+        options.addArguments("--disable-extensions");
         options.addArguments("--disable-infobars");
         options.addArguments("--disable-notifications");
+        options.addArguments("--remote-debugging-port=9222");
 
-
-        // Chrome download preferences
+        // ✅ Stable download configuration for CI
         HashMap<String, Object> prefs = new HashMap<>();
-        prefs.put("download.default_directory", System.getProperty("user.dir") + File.separator + "downloads");
+        prefs.put("download.default_directory", downloads.getAbsolutePath());
         prefs.put("download.prompt_for_download", false);
         prefs.put("download.directory_upgrade", true);
         prefs.put("safebrowsing.enabled", true);
@@ -55,17 +55,16 @@ public class Hooks {
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         _drivers.setDriver(driver);
-
     }
 
     @After
     public void tearDown(Scenario scenario) {
         try {
             if (scenario.isFailed()) {
-                ExtentTestManager.getTest().log(Status.FAIL, "Scenario Failed: " + scenario.getName());
+                ExtentTestManager.getTest().log(Status.FAIL, "❌ Scenario Failed: " + scenario.getName());
                 ExtentTestManager.getTest().addScreenCaptureFromPath(takeScreenshot(scenario));
             } else {
-                ExtentTestManager.getTest().log(Status.PASS, "Scenario Passed: " + scenario.getName());
+                ExtentTestManager.getTest().log(Status.PASS, "✅ Scenario Passed: " + scenario.getName());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -74,30 +73,23 @@ public class Hooks {
     }
 
     @AfterStep
-    public void afterStep(Scenario scenario)
-    {
-        // Get step type and name
+    public void afterStep(Scenario scenario) {
         String stepText = scenario.getName();
-        String stepType = scenario.getStatus().toString(); // pseudocode
         if (scenario.isFailed()) {
-            ExtentTestManager.getTest().fail("Step Failed: " + stepText
-            );
+            ExtentTestManager.getTest().fail("❌ Step Failed: " + stepText);
         } else {
-            ExtentTestManager.getTest().pass("Step Passed: " + stepText);
+            ExtentTestManager.getTest().pass("✅ Step Passed: " + stepText);
         }
     }
+
     private String takeScreenshot(Scenario scenario) {
         File srcFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-
-        // Replace special characters in scenario name
         String safeName = scenario.getName().replaceAll("[^a-zA-Z0-9\\-_]", "_");
-
-        // Save screenshot in the same folder as Extent report
         String path = ExtentManager.getReportFolderPath() + "/" + safeName + ".png";
 
         try {
             File destFile = new File(path);
-            destFile.getParentFile().mkdirs(); // ensure folder exists
+            destFile.getParentFile().mkdirs();
             Files.copy(srcFile.toPath(), destFile.toPath());
         } catch (IOException e) {
             e.printStackTrace();

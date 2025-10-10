@@ -4,8 +4,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
 
-public class controlhelpers
-{
+public class controlhelpers {
     private final waithelpers waitHelpers;
     private final WebDriver driver;
 
@@ -19,76 +18,103 @@ public class controlhelpers
         this.driver = driver;
     }
 
+    /** ✅ Fully robust click with retries and JS fallback */
     public void SafeClick(By locator) {
         removeAds();
         WebElement element = waitHelpers.waitForElement(locator);
+
         int attempts = 3;
         while (attempts > 0) {
             try {
                 element.click();
+                return;
             } catch (ElementClickInterceptedException e) {
-                ((JavascriptExecutor) driver).executeScript(
-                        "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+                handleClickException(element);
             } catch (ElementNotInteractableException e) {
-                ((JavascriptExecutor) driver).executeScript(
-                        "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
-                waitFor(1);
+                handleClickException(element);
             }
+            waitFor(1);
             attempts--;
         }
+        throw new RuntimeException("❌ Failed to click element: " + locator);
     }
 
+    private void handleClickException(WebElement element) {
+        try {
+            ((JavascriptExecutor) driver).executeScript(
+                    "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        } catch (Exception ignored) { }
+    }
 
+    public void click(By locator) {
+        WebElement element = waitHelpers.waitForElement(locator);
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+        SafeClick(locator);
+    }
 
+    /** ✅ Reliable double-click with fallback */
     public void doubleClick(By locator) {
         removeAds();
-        int attempts = 3;
-        while ( attempts > 0) {
-            ((JavascriptExecutor) driver).executeScript(
-                    "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
-            );
+        WebElement element = waitHelpers.waitForElement(locator);
 
-            WebElement element = waitHelpers.waitForElement(locator);
-            Actions actions = new Actions(driver);
-            actions.doubleClick(element).perform();
+        int attempts = 2;
+        while (attempts > 0) {
+            try {
+                new Actions(driver).doubleClick(element).perform();
+                return;
+            } catch (ElementClickInterceptedException e) {
+                handleDoubleClickFallback(element);
+            } catch (ElementNotInteractableException e) {
+                handleDoubleClickFallback(element);
+            }
+            waitFor(1);
             attempts--;
         }
+        throw new RuntimeException("❌ Failed to double-click element: " + locator);
     }
 
+    private void handleDoubleClickFallback(WebElement element) {
+        ((JavascriptExecutor) driver).executeScript(
+                "var evt = new MouseEvent('dblclick', {bubbles:true,cancelable:true}); arguments[0].dispatchEvent(evt);",
+                element);
+    }
+
+    /** ✅ Robust right-click with JS fallback */
     public void rightClick(By locator) {
         removeAds();
         WebElement element = waitHelpers.waitForElement(locator);
-        int attempts = 3;
-        while ( attempts > 0) {
+
+        int attempts = 2;
+        while (attempts > 0) {
             try {
-                Actions actions = new Actions(driver);
-                actions.contextClick(element).perform();
+                new Actions(driver).contextClick(element).perform();
+                return;
             } catch (ElementClickInterceptedException e) {
-                ((JavascriptExecutor) driver).executeScript(
-                        "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+                handleRightClickFallback(element);
             } catch (ElementNotInteractableException e) {
-                ((JavascriptExecutor) driver).executeScript(
-                        "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+                handleRightClickFallback(element);
             }
+            waitFor(1);
             attempts--;
         }
+        throw new RuntimeException("❌ Failed to right-click element: " + locator);
     }
 
+    private void handleRightClickFallback(WebElement element) {
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element);
+        ((JavascriptExecutor) driver).executeScript(
+                "var evt = new MouseEvent('contextmenu', {bubbles:true,cancelable:true}); arguments[0].dispatchEvent(evt);",
+                element);
+    }
 
     public void enterText(By locator, String text) {
         WebElement element = waitHelpers.waitForElement(locator);
         element.clear();
         element.sendKeys(text);
     }
-    public void enterText(WebElement element, String text) {
-        element.clear();
-        element.sendKeys(text);
-    }
-
 
     public void navigateToUrl(String url) {
         driver.navigate().to(url);
@@ -98,36 +124,19 @@ public class controlhelpers
         WebElement element = waitHelpers.waitForElement(locator);
         return element.getText();
     }
+    public String getText(WebElement element) {
+        return element.getText();
+    }
 
 
     public void validateText(By locator, String expectedText) {
         WebElement element = waitHelpers.waitForElement(locator);
-        String actualText;
-        String tagName = element.getTagName().toLowerCase();
-
-        if (tagName.equals("input") || tagName.equals("textarea")) {
-            actualText = element.getAttribute("value");
-        } else {
-            actualText = element.getText();
-        }
+        String actualText = element.getTagName().matches("input|textarea")
+                ? element.getAttribute("value") : element.getText();
 
         Assert.assertTrue(
                 actualText.contains(expectedText),
-                "Expected text '" + expectedText + "' not found in actual text '" + actualText + "'"
-        );
-    }
-
-    public void click(By locator) {
-        WebElement element = waitHelpers.waitForElement(locator);
-        ((JavascriptExecutor) driver).executeScript(
-                "arguments[0].scrollIntoView(true); window.scrollBy(0, -100);", element
-        );
-        element.click();
-    }
-
-    public void scrollToElement(By locator) {
-        WebElement element = waitHelpers.waitForElement(locator);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+                "❌ Expected text '" + expectedText + "' not found. Actual: '" + actualText + "'");
     }
 
     public void waitFor(int timeInSeconds) {
@@ -138,76 +147,20 @@ public class controlhelpers
         }
     }
 
-    public void dragAndDrop(By sourceLocator, By targetLocator) {
-        WebElement source = waitHelpers.waitForElement(sourceLocator);
-        WebElement target = waitHelpers.waitForElement(targetLocator);
-        Actions actions = new Actions(driver);
-        actions.dragAndDrop(source, target).perform();
-    }
-
-    public void resizeElement(By handleLocator, int xOffset, int yOffset) {
-        WebElement handle = waitHelpers.waitForElement(handleLocator);
-        Actions actions = new Actions(driver);
-        actions.clickAndHold(handle)
-                .moveByOffset(xOffset, yOffset)
-                .release()
-                .perform();
-    }
-
-    public String getText(WebElement element) {
-        return element.getText();
-    }
-
-    public String getCurrentUrl() {
-        return driver.getCurrentUrl();
-    }
-
-    public String getPageTitle() {
-        return driver.getTitle();
-    }
-
-    public void hoverOverElement(By locator) {
-        WebElement element = waitHelpers.waitForElement(locator);
-        Actions actions = new Actions(driver);
-        actions.moveToElement(element).perform();
-    }
-
-    public void hoverOverElement(WebElement element) {
-        Actions actions = new Actions(driver);
-        actions.moveToElement(element).perform();
-    }
-
-    //new methods
-    public void hoverAndClick(By menuLocator, By subMenuLocator) {
-        // Hover over the main menu
-        WebElement menu = waitHelpers.waitForElement(menuLocator);
-        Actions actions = new Actions(driver);
-        actions.moveToElement(menu).perform();
-
-        // Wait for submenu to be visible
-        WebElement subMenu = waitHelpers.waitForElement(subMenuLocator);
-
-        // Click the submenu
-        subMenu.click();
-    }
-
-    public void hoverAndClick(WebElement menu, WebElement subMenu) {
-        Actions actions = new Actions(driver);
-        actions.moveToElement(menu).perform();
-
-        // Optional: wait if needed
-        waitHelpers.waitForElement(subMenu);
-
-        subMenu.click();
-    }
     private void removeAds() {
         try {
             ((JavascriptExecutor) driver).executeScript(
-                    "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());"
-            );
-        } catch (Exception ignored) { }
+                    "document.querySelectorAll('iframe, #adplus-anchor').forEach(e => e.remove());");
+        } catch (Exception ignored) {}
     }
-
+    public void scrollToElement(By locator) {
+        WebElement element = waitHelpers.waitForElement(locator);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+    }
+    public void enterText(WebElement element, String text) {
+        element.clear();
+        element.sendKeys(text);
+    }
 
 
 
