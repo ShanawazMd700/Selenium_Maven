@@ -23,10 +23,15 @@ public class Alerts
         this.waithelper = new waithelpers(driver);
     }
     public void verifyAlertText(String expectedText) {
-        Alert alert = driver.switchTo().alert();
-        String actualText = alert.getText();
-        Assert.assertEquals(actualText, expectedText, "Alert text does not match!");
-        alert.accept();
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+            Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+            String actualText = alert.getText();
+            Assert.assertEquals(actualText, expectedText, "Alert text does not match!");
+            alert.accept();
+        } catch (TimeoutException e) {
+            throw new RuntimeException("⚠️ Alert not found to verify text: " + expectedText);
+        }
     }
 
     public void enterTextInAlert(String text) {
@@ -40,31 +45,27 @@ public class Alerts
     }
 
     public void clickalertButton(String buttonText) {
-        WebElement button = driver.findElement(By.xpath(
+        By buttonLocator = By.xpath(
                 "//span[contains(text(),'" + buttonText + "')]/ancestor::div[@class='mt-4 row']//button[text()='Click me']"
-        ));
+        );
 
-        controlhelper.SafeClick(button);
+        // Click the button
+        controlhelper.SafeClick(buttonLocator);
 
-        // Wait for alert safely
-        Alert alert = null;
+        // Wait for alert up to 10 seconds
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            alert = wait.until(ExpectedConditions.alertIsPresent());
-            System.out.println("Alert text: " + alert.getText());
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+            Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+            String alertText = alert.getText();
+            System.out.println("Alert appeared with text: " + alertText);
 
-            if (buttonText.toLowerCase().contains("confirm")) {
-                alert.accept(); // OK
-            } else if (buttonText.toLowerCase().contains("prompt")) {
-                alert.sendKeys("Selenium");
-                alert.accept();
-            } else {
-                alert.accept();
+            if (buttonText.toLowerCase().contains("prompt")) {
+                alert.sendKeys("Selenium"); // example input
             }
+
+            alert.accept(); // accept all alerts (simple/confirm/prompt)
         } catch (TimeoutException e) {
-            System.out.println("⚠️ No alert appeared after clicking: " + buttonText);
-        } catch (NoAlertPresentException e) {
-            System.out.println("⚠️ Alert was already handled or missing: " + e.getMessage());
+            throw new RuntimeException("⚠️ Alert did not appear for button: " + buttonText);
         }
     }
 

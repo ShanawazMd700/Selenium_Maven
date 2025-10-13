@@ -254,7 +254,7 @@ public class ElementInteraction {
     @Then("The file should be downloaded successfully")
     public void theFileShouldBeDownloadedSuccessfully() {
         // Write code here that turns the phrase above into concrete actions
-        uploadDownload.VerifyFileDownloaded();
+        uploadDownload.VerifyFileDownloaded("sampleFile.jpeg");
         System.out.println("Downloaded Successfully");
     }
 

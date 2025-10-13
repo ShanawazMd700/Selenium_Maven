@@ -20,19 +20,24 @@ public class uploadDownload {
         this.waithelper = new waithelpers(driver);
     }
 
-    public void uploadFile(String relativePath) {
-        String projectPath = System.getProperty("user.dir");
-        File file = new File(projectPath, relativePath.replace("\\", "/"));
+    public void uploadFile(String path) {
+        File file;
 
-        // Create dummy file in CI if missing
+        if (new File(path).isAbsolute()) {
+            file = new File(path);
+        } else {
+            file = new File(System.getProperty("user.dir"), path);
+        }
+
+        // CI-friendly: create dummy file if missing
         if (!file.exists()) {
             try {
                 file.getParentFile().mkdirs();
                 if (file.createNewFile()) {
-                    System.out.println("✅ Dummy upload file created for CI: " + file.getAbsolutePath());
+                    System.out.println("✅ Dummy upload file created: " + file.getAbsolutePath());
                 }
             } catch (Exception e) {
-                throw new RuntimeException("❌ Cannot create file for upload: " + file.getAbsolutePath(), e);
+                throw new RuntimeException("❌ Cannot create file: " + file.getAbsolutePath(), e);
             }
         }
 
@@ -49,21 +54,13 @@ public class uploadDownload {
 
     /** ✅ Waits for file in project downloads folder */
 
-    public void VerifyFileDownloaded() {
-        String fileName = "sampleFile.jpeg"; // name of the file you expect
-        String downloadPath = System.getProperty("user.dir")
-                + File.separator + "downloads" + File.separator + fileName;
-
+    public void VerifyFileDownloaded(String fileName) {
+        String downloadPath = System.getProperty("user.dir") + File.separator + "downloads" + File.separator + fileName;
         File downloadedFile = new File(downloadPath);
-        int retries = 30;
 
+        int retries = 30;
         while (retries-- > 0 && !downloadedFile.exists()) {
-            try {
-                Thread.sleep(1000); // wait 1 second before retry
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Interrupted while waiting for file download", e);
-            }
+            try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
 
         Assert.assertTrue(downloadedFile.exists(),
