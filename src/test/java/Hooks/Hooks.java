@@ -25,7 +25,7 @@ public class Hooks {
         System.out.println("🚀 Launching browser for scenario: " + scenario.getName());
 
         ExtentTestManager.startTest(scenario.getName(), "Scenario Execution");
-
+        WebDriverManager.chromedriver().clearResolutionCache();
         WebDriverManager.chromedriver().setup();
 
         // ✅ Ensure downloads folder exists before Chrome starts
@@ -49,7 +49,6 @@ public class Hooks {
         options.addArguments("--disable-extensions");
         options.addArguments("--disable-infobars");
         options.addArguments("--disable-notifications");
-        options.addArguments("--remote-debugging-port=9222");
         options.addArguments("--enable-features=NetworkServiceInProcess");
         options.addArguments("--disable-features=VizDisplayCompositor");
 
@@ -61,7 +60,7 @@ public class Hooks {
         prefs.put("download.directory_upgrade", true);
         prefs.put("safebrowsing.enabled", true);
         options.setExperimentalOption("prefs", prefs);
-
+        try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         _drivers.setDriver(driver);

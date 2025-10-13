@@ -43,11 +43,12 @@ public class uploadDownload {
 
         // Wait for upload input and send file path
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-            WebElement uploadElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("uploadFile")));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+            WebElement uploadElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("uploadFile")));
 
             ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", uploadElement);
             wait.until(ExpectedConditions.elementToBeClickable(uploadElement));
+
 
             uploadElement.sendKeys(file.getAbsolutePath());
             System.out.println("✅ File uploaded successfully: " + file.getAbsolutePath());

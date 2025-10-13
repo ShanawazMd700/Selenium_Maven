@@ -33,6 +33,19 @@ public class controlhelpers {
             } catch (ElementNotInteractableException e) {
                 handleClickException(element);
             }
+            catch (UnhandledAlertException e) {
+                try {
+                    Alert alert = driver.switchTo().alert();
+                    System.out.println("⚠️ Unhandled alert found before clicking: " + alert.getText());
+                    alert.accept(); // or alert.dismiss();
+                } catch (NoAlertPresentException ignored) {}
+
+                // retry click after alert handled
+                element = waitHelpers.waitForElement(locator);
+                element.click();
+                return;
+            }
+
             waitFor(1);
             attempts--;
         }
