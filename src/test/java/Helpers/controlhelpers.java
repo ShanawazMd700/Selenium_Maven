@@ -162,6 +162,25 @@ public class controlhelpers {
         element.sendKeys(text);
     }
 
+    public void SafeClick(WebElement  locator) {
+        removeAds();
+        WebElement element = waitHelpers.waitForElement(locator);
+
+        int attempts = 3;
+        while (attempts > 0) {
+            try {
+                element.click();
+                return;
+            } catch (ElementClickInterceptedException e) {
+                handleClickException(element);
+            } catch (ElementNotInteractableException e) {
+                handleClickException(element);
+            }
+            waitFor(1);
+            attempts--;
+        }
+        throw new RuntimeException("❌ Failed to click element: " + locator);
+    }
 
 
 }

@@ -20,19 +20,26 @@ public class uploadDownload {
     }
 
     /** ✅ Upload works both locally and in CI */
-    public void uploadFile(String filePath) {
-        File file;
-        if (new File(filePath).isAbsolute() && new File(filePath).exists()) {
-            file = new File(filePath);
-        } else {
-            file = new File("src/test/resources/files/" + filePath);
+    public void uploadFile(String relativePath) {
+        // Get the project base directory
+        String projectPath = System.getProperty("user.dir");
+
+        // Construct the full file path using the relative path
+        File file = new File(projectPath, relativePath);
+
+        // If file doesn’t exist in given relative path, try default resource folder
+        if (!file.exists()) {
+            file = new File(projectPath + File.separator + "src/test/resources/files/" + relativePath);
         }
 
+        // Assert file existence before upload
         Assert.assertTrue(file.exists(), "❌ Upload file not found: " + file.getAbsolutePath());
 
+        // Find the upload input element and upload the file
         WebElement uploadInput = waithelper.waitForElement(locators.uploadButton);
         uploadInput.sendKeys(file.getAbsolutePath());
     }
+
 
     public void clickdownloadfile() {
         controlhelper.SafeClick(locators.downloadButton);
