@@ -35,7 +35,7 @@ public class AlertFrameWindow {
     @When("We click on the Click me button with the text {string}")
     public void weClickOnTheClickMeButtonWithTheText(String arg0) {
         // Write code here that turns the phrase above into concrete actions
-        alertpage.clickalertButton(arg0);
+        alertpage.clickAlertButtonAndHandle(arg0, "Selenium");
         System.out.println("Clicked :"+arg0);
     }
 }

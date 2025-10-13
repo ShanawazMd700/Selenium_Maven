@@ -25,7 +25,12 @@ jobs:
               New-Item -ItemType Directory -Path target -Force
               New-Item -ItemType File -Path target/rerun.txt -Force
         working-directory: ${{ github.workspace }}
-    
+        
+      - name: Prepare downloads folder
+        shell: pwsh
+        run: |
+            New-Item -ItemType Directory -Path downloads -Force
+
 
       - name: Cache Maven packages
         uses: actions/cache@v4

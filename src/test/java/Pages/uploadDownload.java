@@ -3,11 +3,12 @@ package Pages;
 import Driver._drivers;
 import Helpers.*;
 import Locators.locators;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import java.io.File;
+import java.time.Duration;
 
 public class uploadDownload {
     private final controlhelpers controlhelper;
@@ -29,28 +30,47 @@ public class uploadDownload {
             file = new File(System.getProperty("user.dir"), path);
         }
 
-        // CI-friendly: create dummy file if missing
+        // Ensure dummy file exists in CI
         if (!file.exists()) {
             try {
                 file.getParentFile().mkdirs();
-                if (file.createNewFile()) {
-                    System.out.println("✅ Dummy upload file created: " + file.getAbsolutePath());
-                }
+                file.createNewFile();
+                System.out.println("✅ Dummy upload file created: " + file.getAbsolutePath());
             } catch (Exception e) {
-                throw new RuntimeException("❌ Cannot create file: " + file.getAbsolutePath(), e);
+                throw new RuntimeException("❌ Failed to create file: " + file.getAbsolutePath(), e);
             }
         }
 
-        Assert.assertTrue(file.exists(), "❌ Upload file not found: " + file.getAbsolutePath());
-        WebElement uploadElement = driver.findElement(By.id("uploadFile"));
-        uploadElement.sendKeys(file.getAbsolutePath());
+        // Wait for upload input and send file path
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            WebElement uploadElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("uploadFile")));
+
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", uploadElement);
+            wait.until(ExpectedConditions.elementToBeClickable(uploadElement));
+
+            uploadElement.sendKeys(file.getAbsolutePath());
+            System.out.println("✅ File uploaded successfully: " + file.getAbsolutePath());
+
+        } catch (TimeoutException e) {
+            throw new RuntimeException("❌ Upload input (#uploadFile) not found or not clickable after waiting.", e);
+        }
     }
 
 
 
     public void clickdownloadfile() {
-        controlhelper.SafeClick(locators.downloadButton);
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement button = wait.until(ExpectedConditions.elementToBeClickable(locators.downloadButton));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", button);
+            button.click();
+            System.out.println("✅ Download button clicked successfully.");
+        } catch (Exception e) {
+            throw new RuntimeException("❌ Failed to click Download button.", e);
+        }
     }
+
 
     /** ✅ Waits for file in project downloads folder */
 
@@ -58,13 +78,23 @@ public class uploadDownload {
         String downloadPath = System.getProperty("user.dir") + File.separator + "downloads" + File.separator + fileName;
         File downloadedFile = new File(downloadPath);
 
-        int retries = 30;
+        System.out.println("🔍 Checking for downloaded file at: " + downloadPath);
+
+        int retries = 60; // 60 seconds max
         while (retries-- > 0 && !downloadedFile.exists()) {
-            try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            try {
+                Thread.sleep(1000);
+                System.out.print(".");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
+        System.out.println();
 
         Assert.assertTrue(downloadedFile.exists(),
-                "❌ File '" + fileName + "' was not downloaded. Checked: " + downloadPath);
+                "❌ File '" + fileName + "' was not downloaded. Checked path: " + downloadPath);
+
+        System.out.println("✅ File downloaded successfully: " + downloadedFile.getAbsolutePath());
     }
 
     public void verifyUploadSuccess(String expectedText) {

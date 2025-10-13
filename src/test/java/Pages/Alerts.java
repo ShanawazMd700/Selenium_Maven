@@ -44,30 +44,21 @@ public class Alerts
         controlhelper.SafeClick(locators.alert_button(value));
     }
 
-    public void clickalertButton(String buttonText) {
-        By buttonLocator = By.xpath(
-                "//span[contains(text(),'" + buttonText + "')]/ancestor::div[@class='mt-4 row']//button[text()='Click me']"
-        );
-
-        // Click the button
+    public void clickAlertButtonAndHandle(String buttonText, String inputText) {
+        By buttonLocator = By.xpath("//span[contains(text(),'" + buttonText + "')]/ancestor::div[@class='mt-4 row']//button[text()='Click me']");
         controlhelper.SafeClick(buttonLocator);
 
-        // Wait for alert up to 10 seconds
-        try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-            Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-            String alertText = alert.getText();
-            System.out.println("Alert appeared with text: " + alertText);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+        String alertText = alert.getText();
+        System.out.println("Alert appeared: " + alertText);
 
-            if (buttonText.toLowerCase().contains("prompt")) {
-                alert.sendKeys("Selenium"); // example input
-            }
-
-            alert.accept(); // accept all alerts (simple/confirm/prompt)
-        } catch (TimeoutException e) {
-            throw new RuntimeException("⚠️ Alert did not appear for button: " + buttonText);
+        if (buttonText.toLowerCase().contains("prompt") && inputText != null) {
+            alert.sendKeys(inputText);
         }
+        alert.accept();
     }
+
 
     public void entertextAlert(String value) {
         Alert alert = driver.switchTo().alert();
