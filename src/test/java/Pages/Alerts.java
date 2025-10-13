@@ -40,31 +40,33 @@ public class Alerts
     }
 
     public void clickalertButton(String buttonText) {
-        WebElement button = driver.findElement(By.xpath("//span[contains(text(),'" + buttonText + "')]/ancestor::div[@class='mt-4 row']//button[text()='Click me']"));
+        WebElement button = driver.findElement(By.xpath(
+                "//span[contains(text(),'" + buttonText + "')]/ancestor::div[@class='mt-4 row']//button[text()='Click me']"
+        ));
+
         controlhelper.SafeClick(button);
 
+        // Wait for alert safely
+        Alert alert = null;
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            wait.until(ExpectedConditions.alertIsPresent());
-            Alert alert = driver.switchTo().alert();
-
-            // Log the alert text if you want
+            alert = wait.until(ExpectedConditions.alertIsPresent());
             System.out.println("Alert text: " + alert.getText());
 
-            // Handle based on alert type
-            if (buttonText.contains("confirm")) {
-                alert.accept(); // click OK
-            } else if (buttonText.contains("prompt")) {
+            if (buttonText.toLowerCase().contains("confirm")) {
+                alert.accept(); // OK
+            } else if (buttonText.toLowerCase().contains("prompt")) {
                 alert.sendKeys("Selenium");
                 alert.accept();
             } else {
                 alert.accept();
             }
         } catch (TimeoutException e) {
-            System.out.println("No alert appeared after clicking " + buttonText);
+            System.out.println("⚠️ No alert appeared after clicking: " + buttonText);
+        } catch (NoAlertPresentException e) {
+            System.out.println("⚠️ Alert was already handled or missing: " + e.getMessage());
         }
     }
-
 
     public void entertextAlert(String value) {
         Alert alert = driver.switchTo().alert();

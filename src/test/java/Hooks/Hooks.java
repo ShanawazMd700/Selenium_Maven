@@ -30,7 +30,14 @@ public class Hooks {
 
         // ✅ Ensure downloads folder exists before Chrome starts
         File downloads = new File(System.getProperty("user.dir") + File.separator + "downloads");
-        if (!downloads.exists()) downloads.mkdirs();
+        if (downloads.exists()) {
+            for (File f : downloads.listFiles()) {
+                f.delete();
+            }
+        } else {
+            downloads.mkdirs();
+        }
+
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
@@ -43,6 +50,9 @@ public class Hooks {
         options.addArguments("--disable-infobars");
         options.addArguments("--disable-notifications");
         options.addArguments("--remote-debugging-port=9222");
+        options.addArguments("--enable-features=NetworkServiceInProcess");
+        options.addArguments("--disable-features=VizDisplayCompositor");
+
 
         // ✅ Stable download configuration for CI
         HashMap<String, Object> prefs = new HashMap<>();

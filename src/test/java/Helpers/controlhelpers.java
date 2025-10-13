@@ -176,6 +176,10 @@ public class controlhelpers {
             } catch (ElementNotInteractableException e) {
                 handleClickException(element);
             }
+            catch (UnhandledAlertException e) {
+                Alert alert = driver.switchTo().alert();
+                alert.accept();
+            }
             waitFor(1);
             attempts--;
         }

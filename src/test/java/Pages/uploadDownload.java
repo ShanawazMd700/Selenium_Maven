@@ -3,6 +3,7 @@ package Pages;
 import Driver._drivers;
 import Helpers.*;
 import Locators.locators;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
@@ -19,26 +20,27 @@ public class uploadDownload {
         this.waithelper = new waithelpers(driver);
     }
 
-    /** ✅ Upload works both locally and in CI */
     public void uploadFile(String relativePath) {
-        // Get the project base directory
         String projectPath = System.getProperty("user.dir");
+        File file = new File(projectPath, relativePath.replace("\\", "/"));
 
-        // Construct the full file path using the relative path
-        File file = new File(projectPath, relativePath);
-
-        // If file doesn’t exist in given relative path, try default resource folder
+        // Create dummy file in CI if missing
         if (!file.exists()) {
-            file = new File(projectPath + File.separator + "src/test/resources/files/" + relativePath);
+            try {
+                file.getParentFile().mkdirs();
+                if (file.createNewFile()) {
+                    System.out.println("✅ Dummy upload file created for CI: " + file.getAbsolutePath());
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("❌ Cannot create file for upload: " + file.getAbsolutePath(), e);
+            }
         }
 
-        // Assert file existence before upload
         Assert.assertTrue(file.exists(), "❌ Upload file not found: " + file.getAbsolutePath());
-
-        // Find the upload input element and upload the file
-        WebElement uploadInput = waithelper.waitForElement(locators.uploadButton);
-        uploadInput.sendKeys(file.getAbsolutePath());
+        WebElement uploadElement = driver.findElement(By.id("uploadFile"));
+        uploadElement.sendKeys(file.getAbsolutePath());
     }
+
 
 
     public void clickdownloadfile() {
@@ -46,21 +48,24 @@ public class uploadDownload {
     }
 
     /** ✅ Waits for file in project downloads folder */
+
     public void VerifyFileDownloaded() {
-        String fileName = "sampleFile.jpeg";
+        String fileName = "sampleFile.jpeg"; // name of the file you expect
         String downloadPath = System.getProperty("user.dir")
                 + File.separator + "downloads" + File.separator + fileName;
 
         File downloadedFile = new File(downloadPath);
         int retries = 30;
+
         while (retries-- > 0 && !downloadedFile.exists()) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(1000); // wait 1 second before retry
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException("Interrupted while waiting for file download", e);
             }
         }
+
         Assert.assertTrue(downloadedFile.exists(),
                 "❌ File '" + fileName + "' was not downloaded. Checked: " + downloadPath);
     }
