@@ -23,17 +23,22 @@ public class Alerts
         this.waithelper = new waithelpers(driver);
     }
     public void verifyAlertText(String expectedText) {
-        Alert alert = waitForAlertWithRetry(3, 5); // retries x waitSeconds
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.alertIsPresent());
 
-        if (alert == null) {
+            Alert alert = driver.switchTo().alert();
+            String actualText = alert.getText();
+            System.out.println("✅ Alert found: " + actualText);
+
+            if (!actualText.equals(expectedText)) {
+                throw new RuntimeException("❌ Expected: '" + expectedText + "', but got: '" + actualText + "'");
+            }
+        } catch (TimeoutException e) {
             throw new RuntimeException("⚠️ Alert not found to verify text: " + expectedText);
         }
-
-        String actualText = alert.getText().trim();
-        System.out.println("✅ Alert found with text: " + actualText);
-        Assert.assertEquals(actualText, expectedText, "Alert text does not match!");
-        alert.accept();
     }
+
 
     // Retry logic to handle slower CI alerts
     private Alert waitForAlertWithRetry(int maxRetries, int waitSeconds) {

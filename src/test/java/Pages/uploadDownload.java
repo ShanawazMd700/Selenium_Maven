@@ -24,13 +24,14 @@ public class uploadDownload {
     public void uploadFile(String path) {
         File file;
 
+        // Resolve file path (relative or absolute)
         if (new File(path).isAbsolute()) {
             file = new File(path);
         } else {
             file = new File(System.getProperty("user.dir"), path);
         }
 
-        // Ensure dummy file exists in CI
+        // Ensure file exists (create dummy if needed)
         if (!file.exists()) {
             try {
                 file.getParentFile().mkdirs();
@@ -41,22 +42,39 @@ public class uploadDownload {
             }
         }
 
-        // Wait for upload input and send file path
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-            WebElement uploadElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("uploadFile")));
+            // Detect current page
+            String currentUrl = driver.getCurrentUrl().toLowerCase();
+            By uploadLocator;
 
+            if (currentUrl.contains("upload-download")) {
+                uploadLocator = By.id("uploadFile"); // Upload & Download page
+            } else if (currentUrl.contains("automation-practice-form")) {
+                uploadLocator = By.id("uploadPicture"); // Practice Form page
+            } else {
+                throw new RuntimeException("❌ Unknown page: cannot determine upload locator from URL: " + currentUrl);
+            }
+
+            // Wait for element presence & visibility
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+            WebElement uploadElement = wait.until(ExpectedConditions.visibilityOfElementLocated(uploadLocator));
+
+            // Scroll into view and ensure it's interactable
             ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", uploadElement);
             wait.until(ExpectedConditions.elementToBeClickable(uploadElement));
 
-
+            // Upload the file
             uploadElement.sendKeys(file.getAbsolutePath());
-            System.out.println("✅ File uploaded successfully: " + file.getAbsolutePath());
+            System.out.println("✅ File uploaded successfully: " + file.getAbsolutePath() +
+                    " via locator: " + uploadLocator.toString());
 
         } catch (TimeoutException e) {
-            throw new RuntimeException("❌ Upload input (#uploadFile) not found or not clickable after waiting.", e);
+            throw new RuntimeException("❌ Upload input not found or not clickable after waiting.", e);
+        } catch (Exception e) {
+            throw new RuntimeException("❌ Failed to upload file: " + path, e);
         }
     }
+
 
 
 
