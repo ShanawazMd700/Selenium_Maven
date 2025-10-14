@@ -11,7 +11,7 @@ Feature: Forms
     When We enter the users mobile number as "9948623909"
     When We select the subject as "English"
     When We select the radiobutton "Sports"
-    When We upload a file with the path "C:\Users\iray\Downloads\sampleFile.jpeg"
+    When We upload a file with the path "src/test/resources/files/sampleFile.jpeg"
     When we select the state "NCR"
     When We select the city "Delhi"
     When We select the year "2029" and month "January" and the day "9"
